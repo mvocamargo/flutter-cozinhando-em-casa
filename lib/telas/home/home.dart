@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cozinhando_casa/modelos/receita.dart';
+import 'package:cozinhando_casa/telas/detalhes/detalhes.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -31,7 +32,7 @@ class _HomeState extends State<Home> {
           itemBuilder: (BuildContext context, int index) {
             Receita receita = Receita.fromJson(receitas[index]);
 
-            return _construirCard(receita.titulo, receita.foto);
+            return _construirCard(receita);
           },
           itemCount: receitas == null ? 0 : receitas.length,
         );
@@ -39,21 +40,48 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _construirCard(titulo, foto) {
-    return SizedBox(
-      height: 300,
-      child: Card(
-          margin: EdgeInsets.all(16),
-          child: Column(
-            children: <Widget>[
-              Stack(
-                children: [
-                  _construirImagemCard(foto),
-                  _construirTextoCard(titulo),
-                ],
-              )
-            ],
-          )),
+  Widget _construirCard(receita) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Detalhes(receita: receita),
+          ),
+        );
+      },
+      child: SizedBox(
+        height: 300,
+        child: Card(
+            margin: EdgeInsets.all(16),
+            child: Column(
+              children: <Widget>[
+                Stack(
+                  children: [
+                    _construirImagemCard(receita.foto),
+                    _construirGradientCard(),
+                    _construirTextoCard(receita.titulo),
+                  ],
+                )
+              ],
+            )),
+      ),
+    );
+  }
+
+  Widget _construirGradientCard() {
+    return Container(
+      height: 268,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: FractionalOffset.topCenter,
+          end: FractionalOffset.bottomCenter,
+          colors: [
+            Colors.transparent,
+            Colors.deepOrange.withOpacity(0.7),
+          ],
+        ),
+      ),
     );
   }
 
@@ -62,7 +90,10 @@ class _HomeState extends State<Home> {
       child: Text(
         titulo,
         style: TextStyle(
-            fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+          fontSize: 20,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       bottom: 10,
       left: 10,
