@@ -1,6 +1,14 @@
+import 'dart:convert';
+
+import 'package:cozinhando_casa/modelos/receita.dart';
 import 'package:flutter/material.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return _construirHome();
@@ -8,12 +16,30 @@ class Home extends StatelessWidget {
 
   Widget _construirHome() {
     return Scaffold(
-      body: _construirCard(),
+      body: _construirListaCard(),
       appBar: _construirAppBar(),
     );
   }
 
-  Widget _construirCard() {
+  Widget _construirListaCard() {
+    return FutureBuilder(
+      future: DefaultAssetBundle.of(context).loadString('assets/receitas.json'),
+      builder: (context, snapshot) {
+        List<dynamic> receitas = json.decode(snapshot.data.toString());
+
+        return ListView.builder(
+          itemBuilder: (BuildContext context, int index) {
+            Receita receita = Receita.fromJson(receitas[index]);
+
+            return _construirCard(receita.titulo, receita.foto);
+          },
+          itemCount: receitas == null ? 0 : receitas.length,
+        );
+      },
+    );
+  }
+
+  Widget _construirCard(titulo, foto) {
     return SizedBox(
       height: 300,
       child: Card(
@@ -22,8 +48,8 @@ class Home extends StatelessWidget {
             children: <Widget>[
               Stack(
                 children: [
-                  _construirImagemCard(),
-                  _construirTextoCard(),
+                  _construirImagemCard(foto),
+                  _construirTextoCard(titulo),
                 ],
               )
             ],
@@ -31,10 +57,10 @@ class Home extends StatelessWidget {
     );
   }
 
-  Widget _construirTextoCard() {
+  Widget _construirTextoCard(titulo) {
     return Positioned(
       child: Text(
-        'Lancho',
+        titulo,
         style: TextStyle(
             fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
       ),
@@ -43,9 +69,9 @@ class Home extends StatelessWidget {
     );
   }
 
-  Widget _construirImagemCard() {
-    return Image.network(
-      'https://i2.wp.com/mercadoeconsumo.com.br/wp-content/uploads/2019/04/Que-comida-saud%C3%A1vel-que-nada-brasileiro-gosta-de-fast-food.jpg?fit=1600%2C1067&ssl=1',
+  Widget _construirImagemCard(foto) {
+    return Image.asset(
+      foto,
       fit: BoxFit.fill,
       height: 268,
     );
